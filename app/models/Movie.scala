@@ -8,16 +8,17 @@ import services.NeoService
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-case class Movie(tmdbId: Long, title: String, releaseDate: DateTime)
+case class Movie(tmdbId: Long, title: String, releaseDate: DateTime) extends TmdbIdentifiable {
+	val neoService = new NeoService()
+
+	def save = {
+		Await.result(neoService.createMovie(this), 10.seconds)
+	}
+}
 
 
 object Movie {
   implicit val movieReads = Json.reads[Movie]
   implicit val movieWrites = Json.writes[Movie]
-  val neoService = new NeoService()
-
-  def create(movie: Movie) = {
-    Await.result(neoService.createNode(Json.toJson(movie)), 10.seconds)
-  }
 }
 
